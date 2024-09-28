@@ -39,16 +39,16 @@ export const LoanCalculator = ({
     setInputTenureMonths(tenureMonths.toString())
   }, [tenureMonths])
 
-  useEffect(()=>{
-    onMonthlyRepaymentChange ? onMonthlyRepaymentChange(monthlyRepayment): undefined
+  useEffect(() => {
+    onMonthlyRepaymentChange ? onMonthlyRepaymentChange(monthlyRepayment) : undefined
   }, [loanAmount, tenureMonths])
 
   return (
     <div className="space-y-4">
       <div>
         <Label htmlFor="loanAmount">Loan Amount</Label>
-        <div id="slider" className="flex gap-5">
-          <div className="space-y-2 w-4/5 mt-2">
+        <div className="flex gap-5">
+          <div className="flex flex-col gap-1 space-y-2 w-4/6 mt-4">
             <Slider
               value={[loanAmount]}
               min={MIN_LOAN_AMOUNT}
@@ -57,16 +57,19 @@ export const LoanCalculator = ({
               onValueChange={(value) => onLoanAmountChange(value[0])}
             />
             <div className="flex justify-between">
-              <div>{MIN_LOAN_AMOUNT}</div>
-              <div>{MAX_LOAN_AMOUNT}</div>
+              <div className="text-muted-foreground text-xs">${MIN_LOAN_AMOUNT}</div>
+              <div className="text-muted-foreground text-xs">${MAX_LOAN_AMOUNT}</div>
             </div>
           </div>
           <Input
-            className="w-1/5 h-auto"
+            className="w-2/6 h-auto"
             type="number"
             min={MIN_LOAN_AMOUNT}
             max={MAX_LOAN_AMOUNT}
             value={inputLoanAmount}
+            startAdornment={
+              <span>$</span>
+            }
             inputMode="numeric"
             onChange={({ target: { value } }) => setInputLoanAmount(value)}
             onBlur={({ target: { value } }) => {
@@ -83,8 +86,8 @@ export const LoanCalculator = ({
       </div>
       <div>
         <Label htmlFor="tenureMonths">Tenure Months</Label>
-        <div id="slider" className="flex gap-5">
-          <div className="space-y-2 w-4/5 mt-2">
+        <div className="flex gap-5">
+          <div className="flex flex-col gap-1 space-y-2 w-4/6 mt-4">
             <Slider
               value={[tenureMonths]}
               min={MIN_TENURE_MONTHS}
@@ -92,12 +95,15 @@ export const LoanCalculator = ({
               onValueChange={(value) => onTenureMonthsChange(value[0])}
             />
             <div className="flex justify-between">
-              <div>{MIN_TENURE_MONTHS}</div>
-              <div>{MAX_TENURE_MONTHS}</div>
+              <div className="text-muted-foreground text-xs">{MIN_TENURE_MONTHS} months</div>
+              <div className="text-muted-foreground text-xs">{MAX_TENURE_MONTHS} months</div>
             </div>
           </div>
           <Input
-            className="w-1/5 h-auto"
+            className="w-2/6 h-auto"
+            endAdornment={
+              <span>months</span>
+            }
             type="number"
             min={MIN_TENURE_MONTHS}
             max={MAX_TENURE_MONTHS}
