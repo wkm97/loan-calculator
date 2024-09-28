@@ -12,5 +12,12 @@ export const STEP = 1000
 export const formSchema = z.object({
   loanAmount: z.number().min(1000).max(200000),
   tenureMonths: z.number().min(3).max(72),
-  monthyRepayment: z.number()
+  monthyRepayment: z.number(),
+  email: z.string().email(),
+  firstName: z.string(),
+  lastName: z.string(),
+  dateOfBirth: z.date(),
+  phoneNumber: z.string().min(10).max(11).regex(/^\d+$/, "Numeric values only."),
+  jobIndustry: z.string(),
+  nationality: z.string(),
 })
