@@ -122,9 +122,9 @@ export const LoanCalculator = ({
           />
         </div>
       </div>
-      <div className="flex justify-between pt-4 pr-4">
-        <span>Your Monthy Payment</span>
-        <span>{monthlyRepayment.toFixed(0)}</span>
+      <div className="flex justify-between items-center pt-4 pr-4">
+        <span className="font-bold text-lg">Your Monthy Payment</span>
+        <span  className="font-bold text-3xl text-primary">$ {monthlyRepayment.toFixed(0)}</span>
       </div>
     </div>
   )
