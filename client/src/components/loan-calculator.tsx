@@ -2,7 +2,11 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
-import { DEFAULT_LOAN_AMOUNT, DEFAULT_TENURE_MONTHS, MAX_LOAN_AMOUNT, MAX_TENURE_MONTHS, MIN_LOAN_AMOUNT, MIN_TENURE_MONTHS, MONTHLY_INTEREST_RATE } from "@/lib/form"
+import {MAX_LOAN_AMOUNT, MAX_TENURE_MONTHS, MIN_LOAN_AMOUNT, MIN_TENURE_MONTHS} from "shared"
+
+const DEFAULT_LOAN_AMOUNT = 20000
+const MONTHLY_INTEREST_RATE = 0.005575
+const DEFAULT_TENURE_MONTHS = 48
 
 interface LoanCalculatorProps {
   loanAmount: number

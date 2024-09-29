@@ -20,18 +20,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { z } from "zod"
-import { formSchema } from "@/lib/form"
 import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import jobIndustries from "@/lib/job-industries"
-import nationalities from "@/lib/nationalities"
-
+import {nationalityOptions, jobIndustryOptions, loanApplicationSchema} from "shared"
 
 
 function App() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof loanApplicationSchema>>({
+    resolver: zodResolver(loanApplicationSchema),
     defaultValues: {
       loanAmount: 20000,
       tenureMonths: 48,
@@ -42,7 +39,7 @@ function App() {
     }
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof loanApplicationSchema>) {
     console.log(values)
   }
 
@@ -172,7 +169,7 @@ function App() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {jobIndustries.map(({ value, text }) => <SelectItem key={value} value={value}>{text}</SelectItem>)}
+                          {jobIndustryOptions.map(({ value, text }) => <SelectItem key={value} value={value}>{text}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -192,7 +189,7 @@ function App() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {nationalities.map(({ value, text }) => <SelectItem key={value} value={value}>{text}</SelectItem>)}
+                          {nationalityOptions.map(({ value, text }) => <SelectItem key={value} value={value}>{text}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
