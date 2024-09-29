@@ -1,7 +1,7 @@
 {
   "name": "loan-calculator",
   "workspaces": [
-    "client",
+    "frontend",
     "server",
     "shared"
   ],
