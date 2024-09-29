@@ -2,11 +2,7 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
-import {MAX_LOAN_AMOUNT, MAX_TENURE_MONTHS, MIN_LOAN_AMOUNT, MIN_TENURE_MONTHS} from "shared"
-
-const DEFAULT_LOAN_AMOUNT = 20000
-const MONTHLY_INTEREST_RATE = 0.005575
-const DEFAULT_TENURE_MONTHS = 48
+import { MAX_LOAN_AMOUNT, MAX_TENURE_MONTHS, MIN_LOAN_AMOUNT, MIN_TENURE_MONTHS } from "shared"
 
 interface LoanCalculatorProps {
   loanAmount: number
@@ -16,12 +12,13 @@ interface LoanCalculatorProps {
   onMonthlyRepaymentChange?: (value: number) => void
 }
 
-const calculateMonthlyRepayment = (loanAmount: number, tenureMonths: number) => {
-  const numerator = MONTHLY_INTEREST_RATE * Math.pow(1 + MONTHLY_INTEREST_RATE, tenureMonths);
-  const denominator = Math.pow(1 + MONTHLY_INTEREST_RATE, tenureMonths) - 1;
+export const calculateMonthlyRepayment = (loanAmount: number, tenureMonths: number) => {
+  const monthlyInterestRate = 0.005575
+  const numerator = monthlyInterestRate * Math.pow(1 + monthlyInterestRate, tenureMonths);
+  const denominator = Math.pow(1 + monthlyInterestRate, tenureMonths) - 1;
   const monthlyRepayment = loanAmount * (numerator / denominator);
 
-  return monthlyRepayment;
+  return Math.round(monthlyRepayment * 100 + Number.EPSILON) / 100;
 }
 
 export const LoanCalculator = ({
@@ -31,12 +28,12 @@ export const LoanCalculator = ({
   onTenureMonthsChange,
   onMonthlyRepaymentChange
 }: LoanCalculatorProps) => {
-  const [inputLoanAmount, setInputLoanAmount] = useState(DEFAULT_LOAN_AMOUNT.toString())
-  const [inputTenureMonths, setInputTenureMonths] = useState(DEFAULT_TENURE_MONTHS.toString())
+  const [inputLoanAmount, setInputLoanAmount] = useState(loanAmount.toLocaleString())
+  const [inputTenureMonths, setInputTenureMonths] = useState(tenureMonths.toString())
   const monthlyRepayment = calculateMonthlyRepayment(loanAmount, tenureMonths)
 
   useEffect(() => {
-    setInputLoanAmount(loanAmount.toString())
+    setInputLoanAmount(loanAmount.toLocaleString())
   }, [loanAmount])
 
   useEffect(() => {
@@ -67,22 +64,16 @@ export const LoanCalculator = ({
           </div>
           <Input
             className="w-2/6 h-auto"
-            type="number"
-            min={MIN_LOAN_AMOUNT}
-            max={MAX_LOAN_AMOUNT}
             value={inputLoanAmount}
             startAdornment={
               <span>$</span>
             }
-            inputMode="numeric"
-            onChange={({ target: { value } }) => setInputLoanAmount(value)}
+            onChange={({ target: { value } }) => setInputLoanAmount(value.replace(/[^0-9.]/g, ''))}
             onBlur={({ target: { value } }) => {
-              if (value && Number(value) >= MIN_LOAN_AMOUNT) {
-                onLoanAmountChange(Number(value))
-                setInputLoanAmount(value)
+              if(!value) {
+                onLoanAmountChange(MIN_LOAN_AMOUNT)
               } else {
-                onLoanAmountChange(Number(MIN_LOAN_AMOUNT))
-                setInputLoanAmount(MIN_LOAN_AMOUNT.toString())
+                onLoanAmountChange(Math.max(MIN_LOAN_AMOUNT, Math.min(Number(value.replace(/[^0-9.]/g, '')), MAX_LOAN_AMOUNT)))
               }
             }}
           />
@@ -104,23 +95,18 @@ export const LoanCalculator = ({
             </div>
           </div>
           <Input
+            type="number"
             className="w-2/6 h-auto"
             endAdornment={
               <span>months</span>
             }
-            type="number"
-            min={MIN_TENURE_MONTHS}
-            max={MAX_TENURE_MONTHS}
             value={inputTenureMonths}
-            inputMode="numeric"
             onChange={({ target: { value } }) => setInputTenureMonths(value)}
             onBlur={({ target: { value } }) => {
-              if (value && Number(value) >= MIN_TENURE_MONTHS) {
-                onTenureMonthsChange(Number(value))
-                setInputTenureMonths(value)
+              if(!value) {
+                onTenureMonthsChange(MIN_TENURE_MONTHS)
               } else {
-                onTenureMonthsChange(Number(MIN_TENURE_MONTHS))
-                setInputTenureMonths(MIN_TENURE_MONTHS.toString())
+                onTenureMonthsChange(Math.max(MIN_TENURE_MONTHS, Math.min(Number(value), MAX_TENURE_MONTHS)))
               }
             }}
           />
@@ -128,7 +114,7 @@ export const LoanCalculator = ({
       </div>
       <div className="flex justify-between items-center pt-4 pr-4">
         <span className="font-bold text-lg">Your Monthy Payment</span>
-        <span  className="font-bold text-3xl text-primary">$ {monthlyRepayment.toFixed(0)}</span>
+        <span className="font-bold text-3xl text-primary">$ {monthlyRepayment.toFixed(0)}</span>
       </div>
     </div>
   )

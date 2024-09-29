@@ -1,4 +1,4 @@
-import { LoanCalculator } from "@/components/loan-calculator"
+import { calculateMonthlyRepayment, LoanCalculator } from "@/components/loan-calculator"
 import { format } from "date-fns"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -23,23 +23,30 @@ import { z } from "zod"
 import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {nationalityOptions, jobIndustryOptions, loanApplicationSchema} from "shared"
+import { nationalityOptions, jobIndustryOptions, loanApplicationSchema } from "shared"
+import { Toaster } from "@/components/ui/toaster"
+import { useToast } from "@/hooks/use-toast"
 
 
 function App() {
+  const { toast } = useToast()
   const form = useForm<z.infer<typeof loanApplicationSchema>>({
     resolver: zodResolver(loanApplicationSchema),
     defaultValues: {
       loanAmount: 20000,
       tenureMonths: 48,
+      monthyRepayment: calculateMonthlyRepayment(20000, 48),
       email: "",
       firstName: "",
       lastName: "",
-      phoneNumber: ""
-    }
+      phoneNumber: "",
+      jobIndustry: "",
+      nationality: ""
+    },
   })
 
   async function onSubmit(values: z.infer<typeof loanApplicationSchema>) {
+    console.log(values)
     const response = await fetch(`${import.meta.env.VITE_API_URL}/submission`, {
       headers: {
         "Content-Type": "application/json",
@@ -47,7 +54,23 @@ function App() {
       method: 'POST',
       body: JSON.stringify(values),
     });
-    console.log(response, values)
+
+    if (response.ok) {
+      await toast({
+        variant: "success",
+        title: "Application Successful",
+        description: `Thanks ${(await response.json()).firstName}, we received your application.`,
+      })
+      form.reset()
+    }
+
+    if (!response.ok) {
+      await toast({
+        variant: "destructive",
+        title: "Application Failed",
+        description: (await response.json()).error,
+      })
+    }
   }
 
   return (
@@ -69,7 +92,7 @@ function App() {
             </div>
             <Separator />
             <div className="space-y-2 py-2">
-              <h2 className="text-2xl font-bold tracking-tight">Application Form</h2>
+              <h2 className="text-2xl font-bold tracking-tight">Loan Application Form</h2>
               <div className="space-y-4 p-4">
                 <FormField
                   control={form.control}
@@ -115,14 +138,14 @@ function App() {
                   name="dateOfBirth"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Date of birth</FormLabel>
+                      <FormLabel>Date of Birth</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
                               variant={"outline"}
                               className={cn(
-                                "w-[250px] pl-3 text-left font-normal",
+                                "w-full pl-3 text-left font-normal",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
@@ -143,6 +166,7 @@ function App() {
                             disabled={(date) =>
                               date > new Date() || date < new Date("1900-01-01")
                             }
+                            timeZone="UTC" // store as UTC in database
                           />
                         </PopoverContent>
                       </Popover>
@@ -169,7 +193,7 @@ function App() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Job Industry</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a job industry" />
@@ -189,7 +213,7 @@ function App() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nationality</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a nationality" />
@@ -209,6 +233,7 @@ function App() {
           </form>
         </Form>
       </div>
+      <Toaster />
     </div >
   )
 }
