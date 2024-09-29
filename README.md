@@ -1,4 +1,7 @@
 # Loan Calculator and Application
+
+https://github.com/user-attachments/assets/840412ec-9599-4994-b81e-d3dacdc86a19
+
 ## How to Run
 ```bash
 
