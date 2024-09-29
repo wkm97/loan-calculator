@@ -39,8 +39,15 @@ function App() {
     }
   })
 
-  function onSubmit(values: z.infer<typeof loanApplicationSchema>) {
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof loanApplicationSchema>) {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/submission`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: 'POST',
+      body: JSON.stringify(values),
+    });
+    console.log(response, values)
   }
 
   return (

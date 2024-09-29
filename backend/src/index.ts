@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv"
 import bodyParser from "body-parser";
+import cors from "cors";
 import { loanApplicationSchema } from "shared";
 import { z } from "zod";
 
@@ -26,6 +27,7 @@ dotenv.config();
 const port = process.env.PORT || 3000;
 
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 
 app.get("/", (req: Request, res: Response) => {
@@ -34,7 +36,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.post("/submission", validateRequest(loanApplicationSchema), (req: Request, res: Response) => {
   console.log(req.body)
-  res.send("Hello there!");
+  res.json(req.body)
 })
 
 app.listen(port, () => {
