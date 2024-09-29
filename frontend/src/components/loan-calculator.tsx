@@ -21,6 +21,16 @@ export const calculateMonthlyRepayment = (loanAmount: number, tenureMonths: numb
   return Math.round(monthlyRepayment * 100 + Number.EPSILON) / 100;
 }
 
+const stepArray = (min: number, max: number, steps: number) => Array.from({ length: steps }, (_, i) => ((max - min) / (steps - 1)) * i + min)
+
+const loanAmountScale = [...stepArray(1000, 50000, 50), ...stepArray(55000, 100000, 10), ...stepArray(110000, 200000, 10)]
+
+const getClosest = (arr: number[], target: number) => {
+  return arr.reduce((closest, num) => {
+    return Math.abs(num - target) < Math.abs(closest - target) ? num : closest;
+  });
+}
+
 export const LoanCalculator = ({
   loanAmount,
   tenureMonths,
@@ -51,11 +61,11 @@ export const LoanCalculator = ({
         <div className="flex gap-5">
           <div className="flex flex-col gap-1 space-y-2 w-4/6 mt-4">
             <Slider
-              value={[loanAmount]}
-              min={MIN_LOAN_AMOUNT}
-              max={MAX_LOAN_AMOUNT}
-              step={1000}
-              onValueChange={(value) => onLoanAmountChange(value[0])}
+              value={[loanAmountScale.indexOf(getClosest(loanAmountScale, loanAmount))]}
+              min={0}
+              max={69}
+              step={1}
+              onValueChange={(value) => onLoanAmountChange(loanAmountScale[value[0]])}
             />
             <div className="flex justify-between">
               <div className="text-muted-foreground text-xs">${MIN_LOAN_AMOUNT}</div>
@@ -70,10 +80,13 @@ export const LoanCalculator = ({
             }
             onChange={({ target: { value } }) => setInputLoanAmount(value.replace(/[^0-9.]/g, ''))}
             onBlur={({ target: { value } }) => {
-              if(!value) {
+              if (!value) {
                 onLoanAmountChange(MIN_LOAN_AMOUNT)
               } else {
-                onLoanAmountChange(Math.max(MIN_LOAN_AMOUNT, Math.min(Number(value.replace(/[^0-9.]/g, '')), MAX_LOAN_AMOUNT)))
+                const clampValue = Math.max(MIN_LOAN_AMOUNT, Math.min(Number(value.replace(/[^0-9.]/g, '')), MAX_LOAN_AMOUNT))
+                const closestValue = getClosest(loanAmountScale, clampValue)
+                setInputLoanAmount(closestValue.toLocaleString())
+                onLoanAmountChange(closestValue)
               }
             }}
           />
@@ -103,7 +116,7 @@ export const LoanCalculator = ({
             value={inputTenureMonths}
             onChange={({ target: { value } }) => setInputTenureMonths(value)}
             onBlur={({ target: { value } }) => {
-              if(!value) {
+              if (!value) {
                 onTenureMonthsChange(MIN_TENURE_MONTHS)
               } else {
                 onTenureMonthsChange(Math.max(MIN_TENURE_MONTHS, Math.min(Number(value), MAX_TENURE_MONTHS)))
